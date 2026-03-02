@@ -425,7 +425,10 @@
   <div class="toast-container" id="toasts"></div>
 
   <script>
-    const API_URL = "https://amagauaqdzxogrgmzogq.supabase.co/functions/v1/admin-review-host";
+    const PROD_API_URL = "https://amagauaqdzxogrgmzogq.supabase.co/functions/v1/admin-review-host";
+    const LOCAL_API_URL = "http://127.0.0.1:54321/functions/v1/admin-review-host";
+    const isLocal = ["localhost", "127.0.0.1", ""].includes(location.hostname);
+    const API_URL = isLocal ? LOCAL_API_URL : PROD_API_URL;
 
     let adminSecret = "";
     let currentStatus = "pending";
