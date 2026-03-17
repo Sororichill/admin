@@ -2,12 +2,12 @@
 
 ## Project Overview
 
-This is a single-page admin panel (`index.html`) for reviewing and approving/rejecting host requests submitted through the Sororichill app. It communicates with a Supabase Edge Function (`admin-review-host`) via a shared admin secret.
+This is a single-page admin panel (`index.html`) for reviewing and approving/rejecting host requests submitted through the Sororichill app. It communicates with a Supabase Edge Function (`admin-review-organizer`) via a shared admin secret.
 
 ## Technology Stack
 
 - **Frontend:** Vanilla HTML/CSS/JS (single `index.html` file, no build step)
-- **Backend:** Supabase Edge Function (`admin-review-host`)
+- **Backend:** Supabase Edge Function (`admin-review-organizer`)
 - **Auth:** Admin secret passed via `X-Admin-Secret` header
 
 ## Git Branching & Commit Workflow

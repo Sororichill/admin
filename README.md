@@ -1,49 +1,73 @@
-# Sororichill Admin
+# React + TypeScript + Vite
 
-Admin panel for reviewing and managing host applications submitted through the [Sororichill](https://github.com/) app.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## What it does
+Currently, two official plugins are available:
 
-When a user applies to become a host on Sororichill, their request lands here for manual review. Admins can:
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-- **View** pending, approved, and rejected host applications
-- **Approve** a host request (triggers Stripe account setup)
-- **Reject** a host request
+## React Compiler
 
-Each application displays the applicant's legal name, date of birth, phone, address, IBAN (masked), Stripe account ID, and optional description.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## How it works
+## Expanding the ESLint configuration
 
-The panel is a single `index.html` file — no build step, no framework. It authenticates via an admin secret and talks directly to a **Supabase Edge Function** (`admin-review-host`).
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-Browser  ──X-Admin-Secret──▶  Supabase Edge Function  ──▶  Database
-```
 
-### Auth flow
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-1. Admin enters the shared secret on the login screen.
-2. The secret is sent as an `X-Admin-Secret` header on every request.
-3. If the secret is invalid, the Edge Function returns an error and the admin is not logged in.
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-## Running locally
-
-Just open `index.html` in a browser — it points to the remote Supabase Edge Function by default.
-
-```sh
-open index.html
-```
-
-To serve it locally (e.g. for live-reload):
-
-```sh
-npx serve .
-```
-
-## Project structure
-
-```
-sororichill-admin/
-├── index.html    # The entire admin UI
-└── README.md
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
