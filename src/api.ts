@@ -1,4 +1,4 @@
-import { ENV_CONFIG, type EnvKey } from "./config";
+import { ENV_CONFIG, TEST_ADMIN_SECRET, type EnvKey } from "./config";
 import type { Organizer, OrganizerStatus } from "./types";
 
 export async function apiFetch(
@@ -8,10 +8,11 @@ export async function apiFetch(
   params = "",
   body?: Record<string, unknown>
 ): Promise<Response> {
+  const actualSecret = env === "test" ? TEST_ADMIN_SECRET : secret;
   const opts: RequestInit = {
     method,
     headers: {
-      "X-Admin-Secret": secret,
+      "X-Admin-Secret": actualSecret,
       "Content-Type": "application/json",
     },
   };

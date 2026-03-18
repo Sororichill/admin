@@ -12,3 +12,5 @@ export const ENV_CONFIG = {
 } as const;
 
 export type EnvKey = keyof typeof ENV_CONFIG;
+
+export const TEST_ADMIN_SECRET = "test";

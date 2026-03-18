@@ -10,9 +10,7 @@ import { toast } from "./Toast";
 interface DashboardPageProps {
   currentEnv: EnvKey;
   secret: string;
-  onEnvChange: (env: EnvKey) => void;
   onLogout: () => void;
-  onNeedLogin: () => void;
 }
 
 const STATUS_TABS: OrganizerStatus[] = ["pending", "approved", "rejected"];
@@ -25,9 +23,7 @@ const EMPTY_ICONS: Record<OrganizerStatus, string> = {
 export function DashboardPage({
   currentEnv,
   secret,
-  onEnvChange,
   onLogout,
-  onNeedLogin,
 }: DashboardPageProps) {
   const [activeTab, setActiveTab] = useState<OrganizerStatus>("pending");
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
@@ -90,17 +86,6 @@ export function DashboardPage({
     loadList(status);
   };
 
-  const handleEnvSwitch = (env: EnvKey) => {
-    if (env === currentEnv) return;
-    const stored = sessionStorage.getItem(`admin_secret_${env}`);
-    if (stored) {
-      onEnvChange(env);
-    } else {
-      onEnvChange(env);
-      onNeedLogin();
-    }
-  };
-
   const handleApprove = async () => {
     if (!modalState || modalState.type !== "approve") return;
     const id = modalState.organizerId;
@@ -161,12 +146,6 @@ export function DashboardPage({
                 {s === "pending" && <span className="badge">{counts.pending}</span>}
               </button>
             ))}
-          </div>
-          <div className="env-switcher">
-            <select value={currentEnv} onChange={(e) => handleEnvSwitch(e.target.value as EnvKey)}>
-              <option value="test">Test</option>
-              <option value="prod">Production</option>
-            </select>
           </div>
           <button className="btn-logout" onClick={onLogout}>
             Sign out
