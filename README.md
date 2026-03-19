@@ -1,73 +1,78 @@
-# React + TypeScript + Vite
+# Sororichill Admin
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Admin dashboard for reviewing organizer applications on the [Sororichill](https://github.com/Sororichill/sororichill) platform.
 
-Currently, two official plugins are available:
+**Live:** [https://sororichill.github.io/admin/](https://sororichill.github.io/admin/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Overview
 
-## React Compiler
+This is a single-page React app that lets admins review, approve, and reject organizer applications. It communicates with a Supabase Edge Function (`admin-review-organizer`) using a shared admin secret.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Features
 
-## Expanding the ESLint configuration
+- **Three-tab view** — Pending, Approved, Rejected applications
+- **Approve / Reject with reason** — modal-based actions with confirmation
+- **Live counts** — stats bar shows application totals per status
+- **Fade-out transitions** — smooth UI when an application changes status
+- **Toast notifications** — success/error feedback
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- React 19 + TypeScript
+- Vite 8
+- GitHub Pages (auto-deployed from `main`)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Getting Started
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node.js ≥ 20
+- npm
+
+### Install & Run
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Opens at `http://localhost:5173/admin/`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Build
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+npm run preview   # preview the production build locally
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+## Deployment
+
+Pushing to `main` triggers the GitHub Actions workflow (`.github/workflows/deploy.yml`) which builds and deploys to GitHub Pages automatically.
+
+## Authentication
+
+The admin panel authenticates via a shared secret sent as an `X-Admin-Secret` header to the Supabase Edge Function. The secret is set as a Supabase secret on the production project — it is **never** stored in this repo.
+
+## Project Structure
+
+```
+src/
+├── main.tsx              # Entry point
+├── App.tsx               # Auth state, login/dashboard routing
+├── config.ts             # Production API URL
+├── api.ts                # API client (fetch wrappers)
+├── types.ts              # TypeScript interfaces
+└── components/
+    ├── LoginPage.tsx      # Password input + validation
+    ├── DashboardPage.tsx  # Tabs, stats, organizer list
+    ├── OrganizerCard.tsx  # Individual application card
+    ├── ApproveModal.tsx   # Approval confirmation dialog
+    ├── RejectModal.tsx    # Rejection reason dialog
+    └── Toast.tsx          # Toast notification system
 ```
