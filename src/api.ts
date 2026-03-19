@@ -1,31 +1,28 @@
-import { ENV_CONFIG, TEST_ADMIN_SECRET, type EnvKey } from "./config";
+import { API_URL } from "./config";
 import type { Organizer, OrganizerStatus } from "./types";
 
 export async function apiFetch(
   method: string,
-  env: EnvKey,
   secret: string,
   params = "",
   body?: Record<string, unknown>
 ): Promise<Response> {
-  const actualSecret = env === "test" ? TEST_ADMIN_SECRET : secret;
   const opts: RequestInit = {
     method,
     headers: {
-      "X-Admin-Secret": actualSecret,
+      "X-Admin-Secret": secret,
       "Content-Type": "application/json",
     },
   };
   if (body) opts.body = JSON.stringify(body);
-  return fetch(ENV_CONFIG[env].url + params, opts);
+  return fetch(API_URL + params, opts);
 }
 
 export async function loadOrganizers(
-  env: EnvKey,
   secret: string,
   status: OrganizerStatus
 ): Promise<Organizer[]> {
-  const res = await apiFetch("GET", env, secret, `?status=${status}`);
+  const res = await apiFetch("GET", secret, `?status=${status}`);
   const data = await res.json();
   if (!res.ok || data.error) {
     throw new Error(data.error || "Failed to load organizers");
@@ -34,11 +31,10 @@ export async function loadOrganizers(
 }
 
 export async function approveOrganizer(
-  env: EnvKey,
   secret: string,
   organizerId: string
 ): Promise<void> {
-  const res = await apiFetch("POST", env, secret, "", {
+  const res = await apiFetch("POST", secret, "", {
     organizer_id: organizerId,
     action: "approve",
   });
@@ -47,12 +43,11 @@ export async function approveOrganizer(
 }
 
 export async function rejectOrganizer(
-  env: EnvKey,
   secret: string,
   organizerId: string,
   reason: string
 ): Promise<void> {
-  const res = await apiFetch("POST", env, secret, "", {
+  const res = await apiFetch("POST", secret, "", {
     organizer_id: organizerId,
     action: "reject",
     reason,

@@ -1,9 +1,8 @@
 import { useState, useRef } from "react";
-import type { EnvKey } from "../config";
 import { apiFetch } from "../api";
 
 interface LoginPageProps {
-  onLogin: (env: EnvKey, secret: string) => void;
+  onLogin: (secret: string) => void;
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
@@ -19,13 +18,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     setLoading(true);
     setError("");
 
-    const isTest = trimmed === "test";
-    const env: EnvKey = isTest ? "test" : "prod";
-
     try {
-      const res = await apiFetch("GET", env, trimmed, "?status=pending");
+      const res = await apiFetch("GET", trimmed, "?status=pending");
       if (res.ok) {
-        onLogin(env, trimmed);
+        onLogin(trimmed);
       } else {
         setError("Invalid admin secret");
       }

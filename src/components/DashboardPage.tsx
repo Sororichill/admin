@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ENV_CONFIG, type EnvKey } from "../config";
 import { loadOrganizers as fetchOrganizers, approveOrganizer, rejectOrganizer } from "../api";
 import type { Organizer, OrganizerStatus } from "../types";
 import { OrganizerCard } from "./OrganizerCard";
@@ -8,7 +7,6 @@ import { RejectModal } from "./RejectModal";
 import { toast } from "./Toast";
 
 interface DashboardPageProps {
-  currentEnv: EnvKey;
   secret: string;
   onLogout: () => void;
 }
@@ -21,7 +19,6 @@ const EMPTY_ICONS: Record<OrganizerStatus, string> = {
 };
 
 export function DashboardPage({
-  currentEnv,
   secret,
   onLogout,
 }: DashboardPageProps) {
@@ -36,20 +33,14 @@ export function DashboardPage({
     | null
   >(null);
 
-  const envRef = useRef(currentEnv);
   const secretRef = useRef(secret);
-  envRef.current = currentEnv;
   secretRef.current = secret;
-
-  const cfg = ENV_CONFIG[currentEnv];
-  const isProd = currentEnv === "prod";
-  const badgeClass = isProd ? "prod" : "test";
 
   const loadCounts = useCallback(async () => {
     try {
       const results = await Promise.all(
         STATUS_TABS.map((s) =>
-          fetchOrganizers(envRef.current, secretRef.current, s).then((list) => list.length)
+          fetchOrganizers(secretRef.current, s).then((list) => list.length)
         )
       );
       setCounts({
@@ -65,7 +56,7 @@ export function DashboardPage({
   const loadList = useCallback(async (status: OrganizerStatus) => {
     setLoading(true);
     try {
-      const list = await fetchOrganizers(envRef.current, secretRef.current, status);
+      const list = await fetchOrganizers(secretRef.current, status);
       setOrganizers(list);
     } catch {
       setOrganizers([]);
@@ -74,12 +65,11 @@ export function DashboardPage({
     }
   }, []);
 
-  // Initial load & reload on env/secret change
   useEffect(() => {
     loadCounts();
     loadList(activeTab);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentEnv, secret]);
+  }, [secret]);
 
   const handleTabSwitch = (status: OrganizerStatus) => {
     setActiveTab(status);
@@ -90,7 +80,7 @@ export function DashboardPage({
     if (!modalState || modalState.type !== "approve") return;
     const id = modalState.organizerId;
     try {
-      await approveOrganizer(currentEnv, secret, id);
+      await approveOrganizer(secret, id);
       setModalState(null);
       toast("Organizer approved ✓", "success");
       fadeOutAndReload(id);
@@ -103,7 +93,7 @@ export function DashboardPage({
     if (!modalState || modalState.type !== "reject") return;
     const id = modalState.organizerId;
     try {
-      await rejectOrganizer(currentEnv, secret, id, reason);
+      await rejectOrganizer(secret, id, reason);
       setModalState(null);
       toast("Organizer rejected ✓", "success");
       fadeOutAndReload(id);
@@ -123,16 +113,9 @@ export function DashboardPage({
 
   return (
     <>
-      <div className={`env-banner ${badgeClass}`}>
-        {isProd ? "● Production Environment" : "⚠ Test Environment — Data is not real"}
-      </div>
-
       <header>
         <div className="header-left">
           <h1>Organizer Review</h1>
-          <span className={`env-badge ${badgeClass}`}>
-            {cfg.icon} {cfg.label}
-          </span>
         </div>
         <div className="header-actions">
           <div className="tabs">
